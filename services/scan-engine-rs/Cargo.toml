@@ -12,7 +12,6 @@ pnet = "0.34"
 pnet_packet = "0.34"
 
 # CLI & Nmap wrapper execution
-tokio-process = "0.3"
 quick-xml = { version = "0.31", features = ["serialize"] }
 serde = { version = "1.0", features = ["derive"] }
 
