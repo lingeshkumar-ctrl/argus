@@ -1,0 +1,27 @@
+# Node / Frontend
+node_modules/
+dist/
+.env
+
+# Rust
+target/
+Cargo.lock
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Java
+target/
+build/
+.gradle/
+*.class
+
+# IDEs & OS Junk
+.idea/
+.vscode/
+*.swp
+.DS_Store
