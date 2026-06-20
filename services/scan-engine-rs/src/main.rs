@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // TODO: Phase 1 Guardrail - Implement gRPC call to auth-gateway
     // to verify target IP is within the authorized engagement scope.
-    let target_ip = "127.0.0.1"; 
+    let target_ip = "127.0.0.1";
     let is_authorized = check_authorized_scope(target_ip).await;
 
     if !is_authorized {
@@ -19,13 +19,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     info!("Target authorized. Engine ready.");
-    
+
     // Future execution logic will branch here based on the gRPC request
-    
+
     Ok(())
 }
 
 async fn check_authorized_scope(_ip: &str) -> bool {
     // Hardcoded to true for local development until the gateway is wired
-    true 
+    true
 }
