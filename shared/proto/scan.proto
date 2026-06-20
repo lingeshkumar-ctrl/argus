@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package argus.scan;
+
+// Ensure Java generates it in the correct namespace later
+option java_package = "com.argus.grpc.scan";
+option java_multiple_files = true;
+
+// The core service the Rust engine will expose
+service ScanEngine {
+  rpc SubmitScanJob (ScanRequest) returns (ScanResponse);
+  rpc GetScanStatus (ScanStatusRequest) returns (ScanStatusResponse);
+}
+
+message ScanRequest {
+  string job_id = 1;
+  string target_ip = 2;
+  string scan_type = 3; // e.g., "SYN", "FIN", "XMAS"
+  string operator_id = 4; // Crucial for the audit log
+  string engagement_id = 5; // Validates the authorized scope
+}
+
+message ScanResponse {
+  string job_id = 1;
+  string status = 2; // "ACCEPTED", "REJECTED_OUT_OF_SCOPE"
+  string message = 3;
+}
+
+message ScanStatusRequest {
+  string job_id = 1;
+}
+
+message ScanStatusResponse {
+  string job_id = 1;
+  string state = 2; // "RUNNING", "COMPLETED", "FAILED"
+  string raw_xml_output = 3; // The Nmap XML output
+}
