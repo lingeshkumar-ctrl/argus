@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: ARGUS Gateway API
+  version: 1.0.0
+  description: External REST interface for the ARGUS platform.
+servers:
+  - url: https://api.argus.local/v1
+    description: Local development gateway
+paths:
+  /scans:
+    post:
+      summary: Submit a new scan job
+      operationId: submitScan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - target_ip
+                - scan_type
+                - engagement_id
+              properties:
+                target_ip:
+                  type: string
+                  example: "192.168.1.0/24"
+                scan_type:
+                  type: string
+                  example: "SYN"
+                engagement_id:
+                  type: string
+                  description: "Mandatory authorization scope ID"
+      responses:
+        '202':
+          description: Scan accepted and queued
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Out of authorized scope
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
