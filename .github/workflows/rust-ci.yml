@@ -1,0 +1,37 @@
+name: Rust CI (Low-Level Engine)
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'services/**/*-rs/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [ "main", "develop" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Build & SAST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Check Formatting
+        run: cargo fmt --all -- --check
+        working-directory: ./services/scan-engine-rs
+
+      - name: Security Linting (Clippy)
+        run: cargo clippy -- -D warnings
+        working-directory: ./services/scan-engine-rs
+
+      - name: Run Tests
+        run: cargo test
+        working-directory: ./services/scan-engine-rs
