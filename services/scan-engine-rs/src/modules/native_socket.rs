@@ -2,6 +2,7 @@ use pnet::datalink::{self, Channel, NetworkInterface};
 use pnet::util::MacAddr;
 use std::net::{IpAddr, Ipv4Addr};
 use std::str::FromStr;
+use tokio::time::{sleep, Duration};
 use tracing::{error, info};
 
 /// Locates the active network interface for raw packet injection.
@@ -40,7 +41,6 @@ pub async fn execute_raw_scan(target_ip: &str, scan_type: &str) {
     let target_ipv4 = Ipv4Addr::from_str(target_ip).expect("Invalid IP");
 
     let source_mac = interface.mac.unwrap_or(MacAddr::zero());
-    // Temporarily broadcast the frame so the local switch routes it
     let target_mac = MacAddr::broadcast();
 
     // 1. Craft the Nested Payloads
@@ -57,11 +57,25 @@ pub async fn execute_raw_scan(target_ip: &str, scan_type: &str) {
         Err(e) => panic!("Fatal: Failed to create datalink channel: {}", e),
     };
 
-    // 3. FIRE THE PAYLOAD
-    info!("Transmitting payload onto the wire...");
-    match tx.send_to(&final_frame, None) {
-        Some(Ok(_)) => info!("SUCCESS: SYN Packet physically injected into the network."),
-        Some(Err(e)) => error!("Failed to send packet: {}", e),
-        None => error!("Failed to send packet: Channel closed."),
+    // 3. FIRE THE PAYLOAD WITH EVASION JITTER
+    info!("Commencing stealth transmission with randomized jitter...");
+
+    // Fire 3 packets to test the jitter timing
+    for i in 1..=3 {
+        match tx.send_to(&final_frame, None) {
+            Some(Ok(_)) => info!("[Packet {}/3] SUCCESS: SYN injected.", i),
+            Some(Err(e)) => error!("Failed to send packet: {}", e),
+            None => error!("Failed to send packet: Channel closed."),
+        }
+
+        // Apply jitter delay, except after the last packet
+        if i < 3 {
+            // Modulo 601 gives a number from 0 to 600. Adding 300 shifts it to 300-900.
+            let jitter_ms = (rand::random::<u64>() % 601) + 300;
+            info!("IDS Evasion: Sleeping for {}ms...", jitter_ms);
+            sleep(Duration::from_millis(jitter_ms)).await;
+        }
     }
+
+    info!("Stealth scan complete.");
 }
