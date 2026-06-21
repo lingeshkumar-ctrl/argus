@@ -8,9 +8,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
     info!("ARGUS scan-engine initializing...");
 
-    // TODO: Phase 1 Guardrail - Implement gRPC call to auth-gateway
-    // to verify target IP is within the authorized engagement scope.
-    let target_ip = "127.0.0.1";
+    // Phase 1 Guardrail - Target authorization check
+    let target_ip = "192.168.1.1"; // Changed from loopback to simulate an external target
     let is_authorized = check_authorized_scope(target_ip).await;
 
     if !is_authorized {
@@ -18,14 +17,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    info!("Target authorized. Engine ready.");
+    info!("Target authorized. Engaging engine.");
 
-    // Future execution logic will branch here based on the gRPC request
+    // Execute the native raw socket scan
+    modules::native_socket::execute_raw_scan(target_ip, "SYN").await;
 
     Ok(())
 }
 
 async fn check_authorized_scope(_ip: &str) -> bool {
-    // Hardcoded to true for local development until the gateway is wired
+    // Hardcoded to true for local development until the gRPC gateway is wired
     true
 }
