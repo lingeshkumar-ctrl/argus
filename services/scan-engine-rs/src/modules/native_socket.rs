@@ -89,8 +89,13 @@ pub async fn execute_raw_scan(
         "stealth" => {
             info!("Stealth protocol activated: Applying randomized mathematical jitter per target segment.");
             for (index, port) in target_ports.iter().enumerate() {
-                let tcp_payload =
-                    crate::modules::crafter::build_tcp_payload(source_ipv4, 54321, target_ipv4, *port, scan_type);
+                let tcp_payload = crate::modules::crafter::build_tcp_payload(
+                    source_ipv4,
+                    54321,
+                    target_ipv4,
+                    *port,
+                    scan_type,
+                );
                 let ipv4_packet = crate::modules::crafter::build_ipv4_packet(
                     source_ipv4,
                     target_ipv4,
@@ -118,8 +123,13 @@ pub async fn execute_raw_scan(
             // Default execution profile handles "fast"
             info!("Performance protocol activated: Executing high-throughput batching (500 segments/burst).");
             for (index, port) in target_ports.iter().enumerate() {
-                let tcp_payload =
-                    crate::modules::crafter::build_tcp_payload(source_ipv4, 54321, target_ipv4, *port, scan_type);
+                let tcp_payload = crate::modules::crafter::build_tcp_payload(
+                    source_ipv4,
+                    54321,
+                    target_ipv4,
+                    *port,
+                    scan_type,
+                );
                 let ipv4_packet = crate::modules::crafter::build_ipv4_packet(
                     source_ipv4,
                     target_ipv4,
