@@ -1,4 +1,4 @@
-use pnet::datalink::{self, Channel, NetworkInterface};
+use pnet::datalink::{self, Channel};
 use pnet::packet::ethernet::{EtherTypes, EthernetPacket};
 use pnet::packet::ipv4::Ipv4Packet;
 use pnet::packet::tcp::{TcpFlags, TcpPacket};
