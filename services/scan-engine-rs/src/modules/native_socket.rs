@@ -10,10 +10,20 @@ use tokio::time::{sleep, Duration};
 use tracing::{debug, error, info};
 
 /// Locates the active network interface for raw packet injection.
-pub fn get_active_interface() -> Option<NetworkInterface> {
-    let interfaces = datalink::interfaces();
-    interfaces.into_iter().find(|iface| {
-        !iface.is_loopback() && !iface.ips.is_empty() && iface.ips.iter().any(|ip| ip.is_ipv4())
+pub fn get_active_interface() -> Option<pnet::datalink::NetworkInterface> {
+    pnet::datalink::interfaces().into_iter().find(|iface| {
+        // Stop trusting iface.is_up() because Windows Wi-Fi drivers misreport it.
+        // Instead, we check if the adapter has a valid, routable IPv4 address.
+        iface.ips.iter().any(|ip| {
+            if let std::net::IpAddr::V4(ipv4) = ip.ip() {
+                !ipv4.is_loopback()                  // Ignore 127.0.0.1
+                && !ipv4.is_unspecified()            // Ignore 0.0.0.0
+                && !ipv4.is_link_local()             // Ignore dead 169.254.x.x adapters
+                && !iface.description.to_lowercase().contains("virtualbox") // Ignore VirtualBox
+            } else {
+                false
+            }
+        })
     })
 }
 
